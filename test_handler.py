@@ -4,6 +4,13 @@ from handler import YOLOHandler  # Adjust the import path according to your setu
 
 
 def test_handler():
+    """
+    test_handler requires a sample_image.jpg in the current directory
+
+    it writes the indermediate output in case of save=True
+
+    the test does not test for CUDA availability
+    """
     save = True
     plot = True
     # Initialize the handler
@@ -13,7 +20,7 @@ def test_handler():
     )  # Passing `None` as context, assuming it's not used in your initialize method
 
     # Open and prepare the image
-    with open("./zidane.jpg", "rb") as f:
+    with open("./sample_image.jpg", "rb") as f:
         image_data = f.read()
     # Mimic an inference request payload
     data = [{"data": image_data}]
@@ -24,8 +31,9 @@ def test_handler():
     # Inference
     inference_output = handler.inference(preprocessed_data)
 
-    with open("inference-output.pkl", "wb") as f:
-        pickle.dump(inference_output, f)
+    if save:
+        with open("inference-output.pkl", "wb") as f:
+            pickle.dump(inference_output, f)
 
     # Postprocess
     postprocessed_output = handler.postprocess(inference_output)
@@ -41,4 +49,8 @@ def test_handler():
         with open("output.pkl", "wb") as f:
             pickle.dump(postprocessed_output, f)
 
-    assert False
+    assert len(inference_output[0].boxes) > 5
+
+    assert len(postprocessed_output[0]) > 5
+
+    assert len(postprocessed_output[0]) == len(inference_output[0].boxes)

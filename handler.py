@@ -1,14 +1,26 @@
-from typing import Any
+"""
+handler.py module overrides the BaseHandler class to define the custom handler
+for the YOLO model. It follows the schema that can be found here:
+https://pytorch.org/serve/custom_service.html
+"""
+
+import io
+import os
 import json
+
+from typing import Any
+
 import torch
 
 from ultralytics import YOLO
 from ts.torch_handler.base_handler import BaseHandler
 from PIL import Image
-import io
 
 
 class YOLOHandler(BaseHandler):
+    """
+    Torchserve handler class for YOLO model using Ultralytics model
+    """
 
     manifest: Any
 
@@ -16,11 +28,27 @@ class YOLOHandler(BaseHandler):
         # Initialize model and other artifacts
         if context:
             self.manifest = context.manifest
-        self.model = YOLO("./retail-yolo.pt")
-        print("cuda: ", torch.cuda.is_available())
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.model.device)
-        print(self.model.device)
+            properties = context.system_properties
+            model_dir = properties.get("model_dir")
+            self.device = torch.device(
+                "cuda:" + str(properties.get("gpu_id"))
+                if torch.cuda.is_available()
+                else "cpu"
+            )
+            serlialized_file = self.manifest["model"]["serializedFile"]
+            model_pt_path = os.path.join(model_dir, serlialized_file)
+            if not os.path.isfile(model_pt_path):
+                raise RuntimeError(
+                    "Missing the serialized file of the model. Path:",
+                    model_pt_path,
+                )
+            self.model = YOLO(model_pt_path)
+        else:  # running locally
+            self.model = YOLO("./retail-yolo.pt")
+            print("cuda: ", torch.cuda.is_available())
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.model.to(self.model.device)
+            print(self.model.device)
 
         self.initialized = True
 
@@ -44,9 +72,9 @@ class YOLOHandler(BaseHandler):
 
         return images
 
-    def inference(self, data):
+    def inference(self, data, *args, **kwargs):
         # model inference
-        results = self.model(data)
+        results = self.model(data, *args, **kwargs)
         return results
 
     def postprocess(self, data):
