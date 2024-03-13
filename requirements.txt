@@ -1,0 +1,4 @@
+ultralytics
+opencv_python
+Pillow
+omegaconf
