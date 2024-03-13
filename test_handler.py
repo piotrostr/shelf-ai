@@ -1,5 +1,5 @@
 import pickle
-import cv2
+
 from handler import YOLOHandler  # Adjust the import path according to your setup
 
 
@@ -11,8 +11,9 @@ def test_handler():
 
     the test does not test for CUDA availability
     """
-    save = True
-    plot = True
+    # set to true in testing, leaving false for prod
+    save = False
+    plot = False
     # Initialize the handler
     handler = YOLOHandler()
     handler.initialize(
@@ -41,6 +42,8 @@ def test_handler():
     assert postprocessed_output
 
     if plot:
+        import cv2
+
         plotted = inference_output[0].plot()
         cv2.imshow("image", plotted)
         cv2.waitKey(0)
