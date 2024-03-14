@@ -83,7 +83,11 @@ class YOLOHandler(BaseHandler):
         for req in data:
             body = req.get("data") or req.get("body")
             # support binary files upload
+            print(req)
             if isinstance(body, (bytes, bytearray)):
+                print(len(body))
+                print(type(body))
+                print(body[:50])
                 image = Image.open(io.BytesIO(body))
                 images.append(image)
                 continue
