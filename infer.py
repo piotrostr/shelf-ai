@@ -1,9 +1,37 @@
+import base64
 import cv2
 import time
 import argparse
 
 from cv2.typing import MatLike
 from google.cloud import aiplatform
+
+
+def track(args, endpoint):
+    capture = cv2.VideoCapture("./video-footage.mp4")
+    while True:
+        ret, frame = capture.read()
+        for _ in range(2):
+            ret, frame = capture.read()
+        if not ret:
+            print("Failed to capture image")
+            return
+        _frame = frame.copy()
+        # _frame = resize(_frame)
+        instance = preprocess(_frame)
+        start_time = time.time()
+        res = endpoint.predict(instances=[instance])
+        end_time = time.time()
+        print("Time taken for inference (round-trip): {}".format(end_time - start_time))
+        print("Image Shape:", frame.shape)
+
+        if args.visualize:
+            visualize(_frame, res.predictions[0])
+
+        if cv2.waitKey(22) & 0xFF == ord('q'):
+            break
+
+    capture.release()
 
 
 def visualize(img, preds):
@@ -17,12 +45,9 @@ def visualize(img, preds):
         cv2.putText(img, detection['name'], (x1, y1-10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
     cv2.imshow('detections', img)
-    cv2.waitKey(0)
-
-    cv2.destroyAllWindows()
 
 
-def compress(img: MatLike, quality: int = 30):
+def compress(img: MatLike, quality: int = 40):
     _, buffer = cv2.imencode(
         ".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     )
@@ -44,6 +69,7 @@ def resize(img: MatLike) -> MatLike:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--visualize", action="store_true")
+    parser.add_argument("--track", action="store_true")
     args = parser.parse_args()
 
     ENDPOINT_ID = "2553457425835360256"
@@ -58,13 +84,16 @@ if __name__ == "__main__":
         f"projects/{PROJECT_ID}/locations/europe-west4/endpoints/{ENDPOINT_ID}"
     )
 
+    if args.track:
+        track(args, endpoint)
+        exit(0)
+
     image_paths = [
         "./IMG_0501.jpg",
         "./IMG_0502.jpg",
         "./IMG_0503.jpg",
         "./IMG_0504.jpg",
     ]
-    import base64
 
     start_time = time.time()
     end_time = time.time()
@@ -82,3 +111,6 @@ if __name__ == "__main__":
 
         if args.visualize:
             visualize(images_resized[i], res.predictions[0])
+            cv2.waitKey(0)
+
+            cv2.destroyAllWindows()
