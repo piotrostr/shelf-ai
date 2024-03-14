@@ -61,6 +61,6 @@ def test_handler():
 
     assert len(inference_output[0].boxes) > 5
 
-    assert len(postprocessed_output[0]) > 5
-
-    assert len(postprocessed_output[0]) == len(inference_output[0].boxes)
+    for instance in postprocessed_output["predictions"]:
+        print(instance)
+        assert len(instance) == len(inference_output[0].boxes)

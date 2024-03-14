@@ -101,4 +101,24 @@ class YOLOHandler(BaseHandler):
 
     def postprocess(self, data):
         # this only works for single 'instances' input
-        return {"predictions": [[json.loads(result.tojson()) for result in data]]}
+        if not is_nested(data):
+            return {"predictions": [json.loads(result.tojson()) for result in data]}
+        return {
+            "predictions": [
+                [json.loads(result.tojson()) for result in item] for item in data
+            ]
+        }
+
+
+def is_nested(input_list: list):
+    """
+    Check if a list is nested
+    """
+    # Iterate through each item in the list
+    for item in input_list:
+        # Check if the current item is also a list
+        if isinstance(item, list):
+            # If any item is a list, return True (indicating it's a nested list)
+            return True
+    # If no items are lists, return False (indicating it's not a nested list)
+    return False
