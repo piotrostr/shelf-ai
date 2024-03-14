@@ -7,6 +7,7 @@ https://pytorch.org/serve/custom_service.html
 import io
 import os
 import json
+import base64
 
 from typing import Any
 
@@ -53,22 +54,25 @@ class YOLOHandler(BaseHandler):
         self.initialized = True
 
     def preprocess(self, data):
+        """
+        expected payload is {
+          "body": [
+            { "data": "base64-encoded-image-utf-8" }
+          ]
+        }
+        """
         # Preprocess input data
         images = []
 
         for row in data:
-            image = row.get("data") or row.get("body")
-            if isinstance(image, str):
-                # if the image is a string of bytesarray.
-                image = Image.open(io.BytesIO(image))
-            elif isinstance(image, (bytes, bytearray)):
-                # if the image is a bytes object.
-                image = Image.open(io.BytesIO(image))
-            else:
-                # if the input is a list
-                image = torch.FloatTensor(image)
-
-            images.append(image)
+            payload = row.get("data") or row.get("body")
+            if isinstance(payload, (bytes, bytearray)):
+                image = Image.open(io.BytesIO(payload))
+                images.append(image)
+                continue
+            for item in payload:
+                image = Image.open(io.BytesIO(base64.b64decode(item["data"])))
+                images.append(image)
 
         return images
 
