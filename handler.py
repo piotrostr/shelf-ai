@@ -100,5 +100,5 @@ class YOLOHandler(BaseHandler):
         return results
 
     def postprocess(self, data):
-        # check if returns nested list
-        return [json.loads(result.tojson()) for result in data]
+        # this only works for single 'instances' input
+        return {"predictions": [[json.loads(result.tojson()) for result in data]]}
