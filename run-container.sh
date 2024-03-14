@@ -5,7 +5,8 @@ docker build \
   -f Dockerfile \
   .
 
-docker push piotrostr/shelf-ai-retail-yolo:0.1.0
+# optional
+# docker push piotrostr/shelf-ai-retail-yolo:0.1.0
 
 docker run \
   --gpus all \
