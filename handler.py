@@ -55,21 +55,39 @@ class YOLOHandler(BaseHandler):
 
     def preprocess(self, data):
         """
-        expected payload is {
-          "body": [
-            { "data": "base64-encoded-image-utf-8" }
-          ]
+        preprocess gets the Vertex AI formatted request and returns a list of
+        PIL.Image objects
+
+        this is suitable for the YOLO model used in this example via ultralytics
+
+        expected payload is
+        [
+            {
+                "body": {  # or "data" for uplod image reqs
+                    "instances": [
+                        {"data": "base64-encoded-image-utf-8" },
+                        ...
+                    ]
+                }
+            },
+            ...
+        ]
+        provided that request sent is
+
+        {
+          "instances": [ { "data": "base64-encoded-image-utf-8" }, ... ]
         }
         """
-        # Preprocess input data
         images = []
 
-        for row in data:
-            payload = row.get("data") or row.get("body")
-            if isinstance(payload, (bytes, bytearray)):
-                image = Image.open(io.BytesIO(payload))
+        for req in data:
+            body = req.get("data") or req.get("body")
+            # support binary files upload
+            if isinstance(body, (bytes, bytearray)):
+                image = Image.open(io.BytesIO(body))
                 images.append(image)
                 continue
+            payload = body.get("instances")
             for item in payload:
                 image = Image.open(io.BytesIO(base64.b64decode(item["data"])))
                 images.append(image)
@@ -82,4 +100,5 @@ class YOLOHandler(BaseHandler):
         return results
 
     def postprocess(self, data):
+        # check if returns nested list
         return [json.loads(result.tojson()) for result in data]

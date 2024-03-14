@@ -25,7 +25,13 @@ def test_handler():
     with open("./sample_image.jpg", "rb") as f:
         image_data = f.read()
     # Mimic an inference request payload
-    data = [{"body": [{"data": base64.b64encode(image_data).decode("utf-8")}]}]
+    data = [
+        {
+            "body": {
+                "instances": [{"data": base64.b64encode(image_data).decode("utf-8")}]
+            }
+        }
+    ]
 
     # Preprocess
     preprocessed_data = handler.preprocess(data)
