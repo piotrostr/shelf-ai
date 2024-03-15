@@ -8,7 +8,7 @@ curl -s -X POST http://localhost:8080/predictions/retail-yolo -T ./sample_image.
 cat > ./sample_request.json <<END
 {
   "instances": [
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     }
   ]
@@ -27,19 +27,19 @@ cat > ./sample_request_batch.json <<END
     {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     },
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     },
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     },
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     },
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     },
-    { 
+    {
       "data": "$(base64 -w 0 -i ./sample_image.jpg)"
     }
   ]
