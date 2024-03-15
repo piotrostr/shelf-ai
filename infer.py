@@ -9,7 +9,7 @@ from google.cloud import aiplatform
 
 ENDPOINT_ID = "2553457425835360256"  # Replace with your endpoint ID
 PROJECT_ID = "352528412502"  # Replace with your project ID
-FOOTAGE_PATH = "./video-footage.mp4"  # set to 0 to use webcam
+FOOTAGE_PATH = "./data/video-footage.mp4"  # set to 0 to use webcam
 
 
 def track(args, endpoint):
@@ -119,14 +119,14 @@ if __name__ == "__main__":
         exit(0)
 
     image_paths = [
-        "./IMG_0501.jpg",
-        "./IMG_0502.jpg",
-        "./IMG_0503.jpg",
-        "./IMG_0504.jpg",
-        "./IMG_0508.jpg",
-        "./IMG_0509.jpg",
-        "./IMG_0510.jpg",
-        "./IMG_0511.jpg",
+        "./data/IMG_0501.jpg",
+        "./data/IMG_0502.jpg",
+        "./data/IMG_0503.jpg",
+        "./data/IMG_0504.jpg",
+        "./data/IMG_0508.jpg",
+        "./data/IMG_0509.jpg",
+        "./data/IMG_0510.jpg",
+        "./data/IMG_0511.jpg",
     ]
 
     start_time = time.time()
