@@ -35,16 +35,30 @@ def track(args, endpoint):
 
 
 def visualize(img, preds):
+    bounding_boxes = []
     for detection in preds:
         x1 = int(detection['box']['x1'])
         y1 = int(detection['box']['y1'])
         x2 = int(detection['box']['x2'])
         y2 = int(detection['box']['y2'])
+        bounding_boxes.append((x1, y1, x2, y2))
         cv2.rectangle(img, (x1, y1), (x2, y2),
                       color=(0, 255, 0), thickness=2)
         cv2.putText(img, detection['name'], (x1, y1-10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-    cv2.imshow('detections', img)
+
+    import numpy as np
+    mask = np.zeros(img.shape[:2], dtype="uint8")
+    for (x1, y1, x2, y2) in bounding_boxes:
+        cv2.rectangle(mask, (x1, y1), (x2, y2), 255, -1)
+
+    mask_inv = cv2.bitwise_not(mask)
+    blurred = cv2.GaussianBlur(img, (21, 21), 0)  # Adjust blur strength
+    result = cv2.bitwise_and(blurred, blurred, mask=mask_inv)
+    result = cv2.add(result, img, mask=mask)
+
+    combined_image = np.hstack([img, result])
+    cv2.imshow('detections', combined_image)
 
 
 def compress(img: MatLike, quality: int = 40):
