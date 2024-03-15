@@ -7,8 +7,13 @@ from cv2.typing import MatLike
 from google.cloud import aiplatform
 
 
+ENDPOINT_ID = "2553457425835360256"  # Replace with your endpoint ID
+PROJECT_ID = "352528412502"  # Replace with your project ID
+FOOTAGE_PATH = "./video-footage.mp4"  # set to 0 to use webcam
+
+
 def track(args, endpoint):
-    capture = cv2.VideoCapture("./video-footage.mp4")
+    capture = cv2.VideoCapture(FOOTAGE_PATH)
     while True:
         ret, frame = capture.read()
         for _ in range(2):
@@ -22,7 +27,8 @@ def track(args, endpoint):
         start_time = time.time()
         res = endpoint.predict(instances=[instance])
         end_time = time.time()
-        print("Time taken for inference (round-trip): {}".format(end_time - start_time))
+        print("Time taken for inference (round-trip): {:.2f}ms".format(
+            (end_time - start_time) * 1000))
         print("Image Shape:", frame.shape)
 
         if args.visualize:
@@ -72,6 +78,16 @@ def compress(img: MatLike, quality: int = 40):
 
 
 def preprocess(img: MatLike):
+    """
+    preprocess compresses the images if they are larger than 1.5MB 
+    and returns a dictionary with the base64 encoded image
+
+    Args:
+        img (MatLike): cv2 image
+
+    Returns:
+        dict: dictionary in endpoint-suitable format 
+    """
     if img.size > 1_500_000:
         img = compress(img)
     return {"data": base64.b64encode(img.tobytes()).decode()}
@@ -88,9 +104,6 @@ if __name__ == "__main__":
     parser.add_argument("--track", action="store_true")
     parser.add_argument("--use_mask", action="store_true")
     args = parser.parse_args()
-
-    ENDPOINT_ID = "2553457425835360256"
-    PROJECT_ID = "352528412502"
 
     aiplatform.init(
         project=PROJECT_ID,
@@ -110,20 +123,28 @@ if __name__ == "__main__":
         "./IMG_0502.jpg",
         "./IMG_0503.jpg",
         "./IMG_0504.jpg",
+        "./IMG_0508.jpg",
+        "./IMG_0509.jpg",
+        "./IMG_0510.jpg",
+        "./IMG_0511.jpg",
     ]
 
     start_time = time.time()
-    end_time = time.time()
-    print("Time taken to preprocess: {}".format(end_time - start_time))
     images = [cv2.imread(image_path) for image_path in image_paths]
+    # resize the images to half the size to reduce request size
+    # the images in image_paths are 5-6MB each, request size is 1.5MB
     images_resized = [resize(img) for img in images]
     instances = [preprocess(img) for img in images_resized]
+    end_time = time.time()
+    print("Time taken to preprocess: {:.2f}ms".format(
+        (end_time - start_time) * 1000))
 
     for i in range(len(instances)):
         start_time = time.time()
         res = endpoint.predict(instances=[instances[i]])
         end_time = time.time()
-        print("Time taken for inference (round-trip): {}".format(end_time - start_time))
+        print(
+            "Time taken for inference (round-trip): {:.2f}ms".format((end_time - start_time) * 1000))
         print("Image Shape:", images_resized[i].shape)
 
         if args.visualize:
