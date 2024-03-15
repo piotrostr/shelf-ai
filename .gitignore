@@ -1,3 +1,5 @@
+data
+.gitignore
 logs
 inference-output.pkl
 output.pkl
