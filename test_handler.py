@@ -13,7 +13,7 @@ def test_handler():
     the test does not test for CUDA availability
     """
     # set to true in testing, leaving false for prod
-    save = False
+    save = True
     plot = False
     # Initialize the handler
     handler = YOLOHandler()
@@ -25,42 +25,59 @@ def test_handler():
     with open("./sample_image.jpg", "rb") as f:
         image_data = f.read()
     # Mimic an inference request payload
-    data = [
+    request = [
         {
             "body": {
-                "instances": [{"data": base64.b64encode(image_data).decode("utf-8")}]
+                "instances": [
+                    {"data": base64.b64encode(image_data).decode("utf-8")},
+                    {"data": base64.b64encode(image_data).decode("utf-8")},
+                    {"data": base64.b64encode(image_data).decode("utf-8")},
+                    {"data": base64.b64encode(image_data).decode("utf-8")},
+                    {"data": base64.b64encode(image_data).decode("utf-8")},
+                ],
             }
-        }
+        },
     ]
 
     # Preprocess
-    preprocessed_data = handler.preprocess(data)
+    preprocessed_data = handler.preprocess(request)
 
     # Inference
-    inference_output = handler.inference(preprocessed_data)
+    inference_outputs = handler.inference(preprocessed_data)
+
+    assert len(inference_outputs[0].boxes) > 5
 
     if save:
         with open("inference-output.pkl", "wb") as f:
-            pickle.dump(inference_output, f)
+            pickle.dump(inference_outputs, f)
 
     # Postprocess
-    postprocessed_output = handler.postprocess(inference_output)
+    postprocessed_outputs = handler.postprocess(inference_outputs)
 
-    assert postprocessed_output
+    assert postprocessed_outputs
 
     if plot:
         import cv2
 
-        plotted = inference_output[0].plot()
+        plotted = inference_outputs[0].plot()
         cv2.imshow("image", plotted)
         cv2.waitKey(0)
 
     if save:
         with open("output.pkl", "wb") as f:
-            pickle.dump(postprocessed_output, f)
+            pickle.dump(postprocessed_outputs, f)
 
-    assert len(inference_output[0].boxes) > 5
+    # got to unnset, this is a single request
+    # it returns a nested array since we don't return 'instances'
+    # but a list of requests that contain separates 'instances'
+    # we will be comparing against the inference outputs,
+    # which don't support nested requests due to Ultralytics output format
+    postprocessed_outputs = postprocessed_outputs[0]
 
-    for instance in postprocessed_output["predictions"]:
-        print(instance)
-        assert len(instance) == len(inference_output[0].boxes)
+    assert "predictions" in postprocessed_outputs
+
+    # verify postprocessing
+    for instance_output, inference_output in zip(
+        postprocessed_outputs["predictions"], inference_outputs
+    ):
+        assert len(instance_output) == len(inference_output.boxes)
