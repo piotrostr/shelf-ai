@@ -7,7 +7,7 @@ from cv2.typing import MatLike
 from google.cloud import aiplatform
 
 
-ENDPOINT_ID = "2553457425835360256"  # Replace with your endpoint ID
+ENDPOINT_ID = "1249876439944134656"  # Replace with your endpoint ID
 PROJECT_ID = "352528412502"  # Replace with your project ID
 FOOTAGE_PATH = "./data/video-footage.mp4"  # set to 0 to use webcam
 
@@ -94,8 +94,8 @@ def preprocess(img: MatLike):
 
 
 def resize(img: MatLike) -> MatLike:
-    w, h = img.shape[:2]
-    return cv2.resize(img, (int(h/2), int(w/2)))
+    h, w = img.shape[:2]
+    return cv2.resize(img, (int(w/2), int(h/2)))
 
 
 if __name__ == "__main__":
