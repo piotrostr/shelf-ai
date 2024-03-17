@@ -1,8 +1,15 @@
 # Shelf AI
 
-THIS IS NOT AN OFFICIAL GOOGLE PRODUCT
+## Disclaimer
 
-This repository covers code required to deploy a Retail YOLO model using the
+THIS IS NOT AN OFFICIAL GOOGLE PRODUCT, USE WITH CAUTION!
+
+The repository contains code used for learning purposes, there might be breaking
+changes or unoptimized parts, current version is 0.2.0, alpha release
+
+## Intro
+
+This repository covers all code required to deploy a Retail YOLO model using the
 ultralytics framework under Torchserve onto Vertex AI to an autoscalable
 endpoint
 
@@ -138,4 +145,10 @@ The model achieves good results but finetuning is not a complex task, with even
 store should be achievable
 
 There are also some cool features like Benchmarking or Batch Prediction
-available through the Vertex AI console that can be useful 
+available through the Vertex AI console that can be useful
+
+Inference takes about 30-50ms per frame on n2-standard-8 and NVIDIA TESLA T4,
+can be further improved by compressing the frames (sending through large frames
+adds a lot of latency depending on the network conditions) and using TensorRT
+for exporting an optimized model engine for accelerated inference leveraging the
+CUDA Tensor Cores
