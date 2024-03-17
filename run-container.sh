@@ -1,12 +1,14 @@
 #!/bin/bash
 
+IMAGE_TAG=piotrostr/shelf-ai-retail-yolo:0.1.0
+
 docker build \
-  -t piotrostr/shelf-ai-retail-yolo:0.1.0 \
+  -t $IMAGE_TAG \
   -f Dockerfile \
   .
 
 # optional
-# docker push piotrostr/shelf-ai-retail-yolo:0.1.0
+# docker push $IMAGE_TAG
 
 docker run \
   --gpus all \
@@ -14,5 +16,5 @@ docker run \
   -p 8080:8080 \
   -p 8081:8081 \
   -p 8082:8082 \
-  -it piotrostr/shelf-ai-retail-yolo:0.1.0
+  -it $IMAGE_TAG
 
