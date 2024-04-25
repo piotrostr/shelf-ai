@@ -86,3 +86,6 @@ Docker container comes with the model included, but the `retail-yolo.engine`
 has to match the compute capability of the GPU to be deployed at, so might
 require re-exporting (takes around 10 minutes)
 
+## `go_client`
+
+Also checked out a Golang client, speed improvement is minimal
