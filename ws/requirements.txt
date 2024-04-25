@@ -1,0 +1,4 @@
+fastapi
+omegaconf
+uvicorn[standard]
+ultralytics
