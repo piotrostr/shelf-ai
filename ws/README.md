@@ -25,6 +25,8 @@ on the same GPU as the inference later on (compute capability 7.5 for Tesla T4)
 
 [CUDA Drivers Installation](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local)
 [NVIDIA Container Toolkit Installation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+or alternatively, use the
+[NVIDIA GPU-Optimized VMI (pre-installed)](https://console.cloud.google.com/marketplace/product/nvidia-ngc-public/nvidia-gpu-optimized-vmi)
 
 Also have the ONNX model ready
 
