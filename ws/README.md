@@ -14,6 +14,19 @@ The Python client yields around 10 FPS, averaging 70-100ms per frame
 
 Ping to the serving instance is 30-40ms (PL to europe-west4, NL)
 
+## Key points to improve this further
+
+- convert the frames from BGR/RGB to YUV color space (including chroma
+  subsampling e.g. 4:2:0) before sending the frame to enable better compression
+- network test before starting the streaming from a client should be performed
+  - based on the output of the speedtest, the frame rate has to be set and then
+    maintained, rather than go in bursts - note this is for the frame rate of
+    the capture device
+- Naive encoding with `cv2.imencode` and `zlib.compress` should be replaced with
+  industry standard `H.265`, ideally
+- In an ideal world, use Google ARCore and display the results only on the 3D
+  model, this way the frame rate is not blocking, as the stream continues
+
 ## TensoRT
 
 Setting it up is tricky, but a docker container simplifies the process a lot
