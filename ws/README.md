@@ -103,4 +103,6 @@ require re-exporting (takes around 10 minutes)
 
 ## `go_client`
 
-Also checked out a Golang client, speed improvement is minimal
+Also checked out a Golang client, with saved binary payload, but speed
+improvement is minimal without the points described in 'Key points to improve
+this further'
