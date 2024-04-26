@@ -21,6 +21,11 @@ endpoint
 
 [YOLOv8 Retail](https://github.com/vmc-7645/YOLOv8-retail) - under GPL-3.0 License
 
+There is also a possibility of TensorRT container served via FastAPI WebSocket
+aiming to be deployed on an instance with a GPU (PoC-way) or NVIDIA Triton
+Inference Server (production-ready, then the websocket server would be a
+separate microservice), see `./ws` directory
+
 ## Requirements
 
 ### Deployment
@@ -67,7 +72,8 @@ Torchserve container that is ready to be deployed on Vertex AI
 
 Running the scripts require a deployed endpoint with the model at serving
 
-Before running the scripts, ammend the `ENDPOINT_ID` and `PROJECT_ID` configuration variables
+Before running the scripts, ammend the `ENDPOINT_ID` and `PROJECT_ID`
+configuration variables
 
 - `infer.py` is a Python script for running inference on images or videos using
   the deployed Vertex AI Endpoint and plotting the results. It uses OpenCV for
@@ -103,7 +109,8 @@ single image requests and batch image requests
 
 ### Deployment Flow
 
-Ensure the config params in `cloud-build.sh` and `deploy.py` scripts are correct, then run
+Ensure the config params in `cloud-build.sh` and `deploy.py` scripts are
+correct, then run
 
 ```sh
 ./cloud-build.sh && python deploy.py
@@ -150,5 +157,6 @@ available through the Vertex AI console that can be useful
 Inference takes about 30-50ms per frame on n2-standard-8 and NVIDIA TESLA T4,
 can be further improved by compressing the frames (sending through large frames
 adds a lot of latency depending on the network conditions) and using TensorRT
-for exporting an optimized model engine for accelerated inference leveraging the
-CUDA Tensor Cores
+for exporting an optimized model engine for accelerated inference leveraging
+the CUDA Tensor Cores
+
