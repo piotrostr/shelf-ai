@@ -27,7 +27,7 @@ Ping to the serving instance is 30-40ms (PL to europe-west4, NL)
 - In an ideal world, use Google ARCore and display the results only on the 3D
   model, this way the frame rate is not blocking, as the stream continues
 
-## TensoRT
+## TensorRT
 
 Setting it up is tricky, but a docker container simplifies the process a lot
 
