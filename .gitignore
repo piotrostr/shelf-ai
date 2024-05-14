@@ -1,3 +1,5 @@
+.vscode
+products
 creds.json
 data
 .gitignore
