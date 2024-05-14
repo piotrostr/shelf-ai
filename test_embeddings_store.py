@@ -10,13 +10,13 @@ def test_embeddings_store_init():
 
 def test_embeddings_store_ingest():
     store = EmbeddingsStore()
-    ok = store.ingest("test", Embeddings(data=np.zeros(1408).tolist()), {
+    ok = store.ingest("test", Embeddings(data=np.zeros(256).tolist()), {
         "product_name": "test"})
     assert ok
 
 
 def test_embeddings_store_search():
     store = EmbeddingsStore()
-    embeddings = Embeddings(data=np.zeros(1408).tolist())
+    embeddings = Embeddings(data=np.zeros(256).tolist())
     results = store.search(embeddings)
     assert results is not None

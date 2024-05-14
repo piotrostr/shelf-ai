@@ -3,7 +3,8 @@ import numpy as np
 
 from pydantic import BaseModel
 
-from embedder import Embeddings, Embedder
+from embedder import Embedder
+from embeddings_store import EmbeddingsStore
 
 
 class Recognition(BaseModel):
@@ -33,17 +34,6 @@ class RecognizeRequest(BaseModel):
 
 class RecognizeResponse(BaseModel):
     results: list[Recognition]
-
-
-class SearchResult(BaseModel):
-    product_id: str
-    product_name: str
-    similarity: float
-
-
-class EmbeddingsStore:
-    def search(self, embeddings: Embeddings) -> list[SearchResult]:
-        return []
 
 
 class Recognizer:

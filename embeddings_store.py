@@ -1,3 +1,4 @@
+import logging
 import chromadb
 
 from pydantic import BaseModel
@@ -15,6 +16,7 @@ class EmbeddingsStore:
         self.client = chromadb.PersistentClient("./chroma_dump")
         self.collection = self.client.create_collection(
             "product-embeddings-store", get_or_create=True)
+        logging.info("EmbeddingsStore loaded")
 
     def search(self, embeddings: Embeddings) -> list[EmbeddingsSearchResult]:
         if not embeddings.data:
@@ -41,3 +43,7 @@ class EmbeddingsStore:
             metadatas=[meta],
         )
         return True
+
+    def exists(self, product_id: str) -> bool:
+        res = self.collection.get(product_id)
+        return len(res['ids']) > 0
