@@ -21,17 +21,16 @@ class EmbeddingsStore:
     def search(self, embeddings: Embeddings) -> list[EmbeddingsSearchResult]:
         if not embeddings.data:
             raise ValueError("Embeddings data is empty")
-        res = self.collection.query(embeddings.data, n_results=1)
-        resz = zip(res['ids'], res['metadatas'],  # type: ignore
-                   res['distances'])  # type: ignore
-        print(res)
+        res = self.collection.query(embeddings.data, n_results=6)
+        resz = zip(res['ids'][0], res['metadatas'][0],  # type: ignore
+                   res['distances'][0])  # type: ignore
         return [
             EmbeddingsSearchResult(
-                product_id=product_id[0],
-                product_name=meta[0]['product_name'],
-                similarity=1 - distance[0],
+                product_id=product_id,
+                product_name=product_id,
+                similarity=1 - distance,
             )
-            for product_id, meta, distance in resz
+            for product_id, _, distance in resz
         ]
 
     def ingest(self, product_id: str, embeddings: Embeddings, meta: dict[str, str]) -> bool:

@@ -1,7 +1,9 @@
+import cv2
 import logging
 import numpy as np
 
 from pydantic import BaseModel
+from typing import Any
 
 from embedder import Embedder
 from embeddings_store import EmbeddingsStore
@@ -28,7 +30,7 @@ class Detection(BaseModel):
 
 
 class RecognizeRequest(BaseModel):
-    image: np.ndarray
+    image: Any  # np.ndarray, change to base64 str or bytes in prod
     detections: list[Detection]
 
 
@@ -43,8 +45,8 @@ class Recognizer:
 
     def recognize(self, request: RecognizeRequest) -> RecognizeResponse:
         response = RecognizeResponse(results=[])
-        image = request.image
         detections = request.detections
+        image = request.image
         for detection in detections:
             box = detection.box
             product_image = image[box.y1:box.y2, box.x1:box.x2]
