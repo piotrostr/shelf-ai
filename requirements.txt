@@ -2,3 +2,9 @@ ultralytics
 opencv_python
 Pillow
 omegaconf
+
+# product visual search
+vertexai
+chromadb
+tqdm
+numpy
