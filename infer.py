@@ -4,12 +4,16 @@ import time
 import argparse
 
 from cv2.typing import MatLike
+from google.auth.credentials import Credentials
 from google.cloud import aiplatform
+from google.oauth2 import service_account
+from google.oauth2.credentials import credentials
 
 
-ENDPOINT_ID = "1249876439944134656"  # Replace with your endpoint ID
-PROJECT_ID = "352528412502"  # Replace with your project ID
+ENDPOINT_ID = "4809408995427090432"  # Replace with your endpoint ID
+PROJECT_ID = "461501354025"  # Replace with your project ID
 FOOTAGE_PATH = "./data/video-footage.mp4"  # set to 0 to use webcam
+CREDENTIALS_PATH = "./grpc_client/creds.json"
 
 
 def track(args, endpoint):
@@ -89,8 +93,10 @@ def preprocess(img: MatLike):
         dict: dictionary in endpoint-suitable format 
     """
     if img.size > 1_500_000:
+        old_size =img.size
         img = compress(img)
-    return {"data": base64.b64encode(img.tobytes()).decode()}
+        print("compressed image from %d to %d", old_size, img.size)
+    return {"content": base64.b64encode(img.tobytes()).decode()}
 
 
 def resize(img: MatLike) -> MatLike:
@@ -103,16 +109,35 @@ if __name__ == "__main__":
     parser.add_argument("--visualize", action="store_true")
     parser.add_argument("--track", action="store_true")
     parser.add_argument("--use_mask", action="store_true")
+    parser.add_argument("--bench", action="store_true")
     args = parser.parse_args()
 
+    credentials = service_account.Credentials.from_service_account_file(
+        CREDENTIALS_PATH
+    )
     aiplatform.init(
         project=PROJECT_ID,
-        location="europe-west4"
+        location="europe-west4",
+        credentials=credentials
     )
 
     endpoint = aiplatform.Endpoint(
-        f"projects/{PROJECT_ID}/locations/europe-west4/endpoints/{ENDPOINT_ID}"
+        f"projects/{PROJECT_ID}/locations/europe-west4/endpoints/{ENDPOINT_ID}",
+        credentials=credentials
     )
+
+    if args.bench:
+        print("running bench")
+        img = cv2.imread("./grpc_client/sample_image.jpg")
+        img = cv2.resize(img, (640, 360))
+        print(img.shape, img.size)
+        cv2.imwrite("sample_image_640x360.jpg", img)
+        instances = [preprocess(img)]
+        for i in range(10):
+            start_time = time.time()
+            res = endpoint.predict(instances=instances) 
+            end_time = time.time()
+            print("took %dms" % (end_time - start_time * 1000))
 
     if args.track:
         track(args, endpoint)
