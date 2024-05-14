@@ -1,10 +1,9 @@
 import logging
 import numpy as np
+
 from pydantic import BaseModel
 
-
-class Embeddings(BaseModel):
-    pass
+from embedder import Embeddings, Embedder
 
 
 class Recognition(BaseModel):
@@ -40,11 +39,6 @@ class SearchResult(BaseModel):
     product_id: str
     product_name: str
     similarity: float
-
-
-class Embedder:
-    def embed(self, image: np.ndarray) -> Embeddings:
-        return Embeddings()
 
 
 class EmbeddingsStore:
