@@ -12,8 +12,10 @@ class EmbeddingsSearchResult(BaseModel):
 
 
 class EmbeddingsStore:
-    def __init__(self, use_clip=False):
-        self.client = chromadb.PersistentClient("./chroma_dump")
+    def __init__(self, chroma_dump_path: str | None = None, use_clip=False):
+        self.client = chromadb.PersistentClient(
+            "./chroma_dump" if not chroma_dump_path else chroma_dump_path
+        )
         self.collection = self.client.create_collection(
             "product-embeddings-store", get_or_create=True)
         logging.info("EmbeddingsStore loaded")

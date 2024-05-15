@@ -72,7 +72,7 @@ class Embedder:
 
     # a potential improvement would be to use both the text detected in the image
     # as well as the image itself to get a more accurate embedding
-    def embed(self, img: np.ndarray, text: str | None = None, dimension: int = 256) -> Embeddings:
+    def embed(self, img: np.ndarray, text: str | None = None, dimension: int = 1408) -> Embeddings:
         ok, image_bytes = cv2.imencode(".jpg", img)
         if not ok:
             raise ValueError("Failed to encode image")
@@ -89,7 +89,7 @@ class Embedder:
         )
 
     # this works for gcs too, pretty cool
-    def embed_path(self, img_path: str, dimension: int = 256) -> Embeddings:
+    def embed_path(self, img_path: str, dimension: int = 1408) -> Embeddings:
         image = Image.load_from_file(img_path)
 
         embeddings = self.model.get_embeddings(

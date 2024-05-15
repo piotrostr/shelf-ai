@@ -34,7 +34,7 @@ def search_example(use_clip: bool = False):
 
     img_embeddings = e.embed(img)
     res = es.search(img_embeddings)
-    print([(i.product_id, i.similarity) for i in res])
+    logging.info([(i.product_id, i.similarity) for i in res])
 
 
 def scene_frame_example(use_clip: bool = False):
@@ -58,7 +58,7 @@ def scene_frame_example(use_clip: bool = False):
         if not results:
             logging.warning("No results found for %s", detection_id)
             continue
-        print(results)
+        logging.info(results)
         _, axs = plt.subplots(1, len(results) + 1)
         axs[0].imshow(cv2.cvtColor(product, cv2.COLOR_BGR2RGB))
         axs[0].set_title("Product")
@@ -121,6 +121,11 @@ if __name__ == "__main__":
         "--scene-frame-example",
         action="store_true",
         help="Run scene frame example",
+    )
+    parser.add_argument(
+        "--chroma-dump-path",
+        type=str,
+        help="Path to chroma dump",
     )
     args = parser.parse_args()
 
