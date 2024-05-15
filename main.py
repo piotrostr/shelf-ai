@@ -37,12 +37,12 @@ def search_example(use_clip: bool = False):
     logging.info([(i.product_id, i.similarity) for i in res])
 
 
-def scene_frame_example(use_clip: bool = False):
+def scene_frame_example(use_clip: bool = False, chroma_dump_path: str = None):
     yolo = YOLO("./retail-yolo.pt")
     img = cv2.imread("./data/IMG_0504.jpg")
 
     e = Embedder(PROJECT_ID) if not use_clip else CLIPEmbedder()
-    es = EmbeddingsStore()
+    es = EmbeddingsStore(chroma_dump_path)
 
     res = yolo(img)
     boxes = res[0].boxes.xyxy
