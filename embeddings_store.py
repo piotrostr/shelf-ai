@@ -12,7 +12,7 @@ class EmbeddingsSearchResult(BaseModel):
 
 
 class EmbeddingsStore:
-    def __init__(self):
+    def __init__(self, use_clip=False):
         self.client = chromadb.PersistentClient("./chroma_dump")
         self.collection = self.client.create_collection(
             "product-embeddings-store", get_or_create=True)

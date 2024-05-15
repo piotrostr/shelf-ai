@@ -8,3 +8,11 @@ vertexai
 chromadb
 tqdm
 numpy
+
+# CLIP
+torch
+torchvision
+git+https://github.com/openai/CLIP.git
+ftfy
+regex
+tqdm

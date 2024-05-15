@@ -4,8 +4,9 @@ import logging
 import os
 import argparse
 
-from embedder import Embedder
+from embedder import CLIPEmbedder, Embedder
 from ultralytics import YOLO
+from PIL import Image
 
 from embeddings_store import EmbeddingsStore
 from recognizer import Recognition
@@ -25,23 +26,22 @@ def get_image_paths() -> list[str]:
     return image_paths
 
 
-def search_example():
-
+def search_example(use_clip: bool = False):
     img = cv2.imread("./data/salatka_example_2.jpeg")
 
-    e = Embedder(PROJECT_ID)
+    e = Embedder(PROJECT_ID) if not use_clip else CLIPEmbedder()
     es = EmbeddingsStore()
 
-    img_embeddings = e.embed(img, dimension=256)
+    img_embeddings = e.embed(img)
     res = es.search(img_embeddings)
-    print(res)
+    print([(i.product_id, i.similarity) for i in res])
 
 
-def scene_frame_example():
+def scene_frame_example(use_clip: bool = False):
     yolo = YOLO("./retail-yolo.pt")
     img = cv2.imread("./data/IMG_0504.jpg")
 
-    e = Embedder(PROJECT_ID)
+    e = Embedder(PROJECT_ID) if not use_clip else CLIPEmbedder()
     es = EmbeddingsStore()
 
     res = yolo(img)
@@ -53,7 +53,7 @@ def scene_frame_example():
     for detection_id in range(len(boxes)):
         x1, y1, x2, y2 = boxes[detection_id]
         product = img[int(y1):int(y2), int(x1):int(x2)]
-        embeddings = e.embed(product, dimension=256)
+        embeddings = e.embed(product)
         results = es.search(embeddings)
         if not results:
             logging.warning("No results found for %s", detection_id)
@@ -74,8 +74,8 @@ def scene_frame_example():
         plt.show()
 
 
-def batch_ingest():
-    embedder = Embedder(PROJECT_ID)
+def batch_ingest(use_clip: bool = False):
+    embedder = Embedder(PROJECT_ID) if not use_clip else CLIPEmbedder()
     embeddings_store = EmbeddingsStore()
     image_paths = get_image_paths()
     logging.info(f"embedding and ingesting total of {len(image_paths)} images")
@@ -86,7 +86,7 @@ def batch_ingest():
         if embeddings_store.exists(image_path):
             logging.info(f"Skipping {image_path}, already exists")
             continue
-        embeddings = embedder.embed_path(image_path, dimension=256)
+        embeddings = embedder.embed_path(image_path)
         ok = embeddings_store.ingest(
             image_path,
             embeddings,
@@ -108,6 +108,11 @@ if __name__ == "__main__":
         help="Run batch ingest",
     )
     parser.add_argument(
+        "--use-clip",
+        action="store_true",
+        help="Use clip model instead of multimodal",
+    )
+    parser.add_argument(
         "--search-example",
         action="store_true",
         help="Run search example",
@@ -120,8 +125,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.batch_ingest:
-        batch_ingest()
+        batch_ingest(args.use_clip)
     if args.search_example:
-        search_example()
+        search_example(args.use_clip)
     if args.scene_frame_example:
-        scene_frame_example()
+        scene_frame_example(args.use_clip)
