@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 import chromadb
 
 from pydantic import BaseModel
@@ -12,20 +13,24 @@ class EmbeddingsSearchResult(BaseModel):
 
 
 class EmbeddingsStore:
-    def __init__(self, chroma_dump_path: str | None = None, use_clip=False):
+    def __init__(self, chroma_dump_path: Optional[str] = None, use_clip=False):
         self.client = chromadb.PersistentClient(
             "./chroma_dump" if not chroma_dump_path else chroma_dump_path
         )
         self.collection = self.client.create_collection(
-            "product-embeddings-store", get_or_create=True)
+            "product-embeddings-store", get_or_create=True
+        )
         logging.info("EmbeddingsStore loaded")
 
     def search(self, embeddings: Embeddings) -> list[EmbeddingsSearchResult]:
         if not embeddings.data:
             raise ValueError("Embeddings data is empty")
         res = self.collection.query(embeddings.data, n_results=6)
-        resz = zip(res['ids'][0], res['metadatas'][0],  # type: ignore
-                   res['distances'][0])  # type: ignore
+        resz = zip(
+            res["ids"][0],
+            res["metadatas"][0],  # type: ignore
+            res["distances"][0],
+        )  # type: ignore
         return [
             EmbeddingsSearchResult(
                 product_id=product_id,
@@ -35,7 +40,9 @@ class EmbeddingsStore:
             for product_id, _, distance in resz
         ]
 
-    def ingest(self, product_id: str, embeddings: Embeddings, meta: dict[str, str]) -> bool:
+    def ingest(
+        self, product_id: str, embeddings: Embeddings, meta: dict[str, str]
+    ) -> bool:
         if not embeddings.data:
             return False
         self.collection.add(
@@ -47,4 +54,4 @@ class EmbeddingsStore:
 
     def exists(self, product_id: str) -> bool:
         res = self.collection.get(product_id)
-        return len(res['ids']) > 0
+        return len(res["ids"]) > 0
